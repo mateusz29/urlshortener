@@ -5,7 +5,7 @@ from crud import check_db_url_exists, create_db_url, get_db_url, get_db_urls, up
 from database import get_session, init_db
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
-from schemas import URLCreate, URLResponse
+from schemas import URLCreate, URLResponse, URLStats
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import generate_short_url
 
@@ -25,6 +25,13 @@ def raise_bad_request(message: str):
 
 def raise_not_found(message: str):
     raise HTTPException(status_code=404, detail=message)
+
+
+async def get_url_or_404(short_url: str, db: AsyncSession) -> URLResponse:
+    db_url = await get_db_url(short_url, db)
+    if not db_url:
+        raise_not_found(f"URL '{short_url}' doesn't exist")
+    return db_url
 
 
 @app.post("/shorten")
@@ -49,11 +56,16 @@ async def get_all_urls(db: AsyncSession = Depends(get_session)) -> list[URLRespo
     return urls
 
 
+@app.get("/stats/{short_url}")
+async def get_url_stats(short_url: str, db: AsyncSession = Depends(get_session)) -> URLStats:
+    db_url = await get_url_or_404(short_url, db)
+
+    return db_url
+
+
 @app.get("/{short_url}")
 async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(get_session)) -> RedirectResponse:
-    db_url = await get_db_url(short_url, db)
-    if not db_url:
-        raise_not_found(f"URL '{short_url}' doesn't exist")
+    db_url = await get_url_or_404(short_url, db)
 
     await update_db_url_click_count(db_url, db)
 

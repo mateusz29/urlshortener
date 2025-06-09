@@ -13,7 +13,6 @@ class URLCreate(URLBase):
 
 class URLResponse(URLBase):
     short_url: str
-    created_at: datetime
     is_active: bool
 
 
