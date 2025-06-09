@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from enums import ExpirationOption
 from pydantic import BaseModel, HttpUrl
 
 
@@ -8,7 +9,7 @@ class URLBase(BaseModel):
 
 
 class URLCreate(URLBase):
-    pass
+    expires_in: ExpirationOption
 
 
 class URLResponse(URLBase):
@@ -20,5 +21,6 @@ class URLStats(BaseModel):
     original_url: str
     short_url: str
     created_at: datetime
+    expires_at: datetime | None
     is_active: bool
     click_count: int

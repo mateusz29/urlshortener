@@ -1,8 +1,16 @@
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from io import BytesIO
 
 from constants import BASE_URL, MAX_ATTEMPTS
-from crud import check_db_url_exists, create_db_url, get_db_url, get_db_urls, update_db_url_click_count
+from crud import (
+    check_db_url_exists,
+    create_db_url,
+    get_db_url,
+    get_db_urls,
+    update_db_url_click_count,
+    update_db_url_is_active,
+)
 from database import get_session, init_db
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse, StreamingResponse
@@ -31,7 +39,7 @@ def raise_not_found(message: str):
 async def get_url_or_404(short_url: str, db: AsyncSession) -> URLResponse:
     db_url = await get_db_url(short_url, db)
     if not db_url:
-        raise_not_found(f"URL '{short_url}' doesn't exist")
+        raise_not_found(f"URL '{short_url}' doesn't exist.")
     return db_url
 
 
@@ -44,7 +52,7 @@ async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_sessio
     else:
         raise_bad_request("Failed to generate a unique short code.")
 
-    new_url = await create_db_url(short_url, str(url.original_url), db)
+    new_url = await create_db_url(short_url, str(url.original_url), url.expires_in, db)
     return new_url
 
 
@@ -68,8 +76,11 @@ async def get_url_stats(short_url: str, db: AsyncSession = Depends(get_session))
 async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(get_session)) -> RedirectResponse:
     db_url = await get_url_or_404(short_url, db)
 
-    await update_db_url_click_count(db_url, db)
+    if db_url.expires_at and db_url.expires_at <= datetime.now(timezone.utc):
+        await update_db_url_is_active(db_url, db)
+        raise_not_found(f"URL '{short_url}' is expired.")
 
+    await update_db_url_click_count(db_url, db)
     return RedirectResponse(db_url.original_url)
 
 

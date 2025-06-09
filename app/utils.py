@@ -1,8 +1,10 @@
 import secrets
 import string
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 
 import qrcode
+from enums import ExpirationOption
 
 
 def generate_short_url(length: int = 10) -> str:
@@ -21,3 +23,19 @@ def generate_qr_code(url: str) -> bytes:
     buffer.seek(0)
 
     return buffer.getvalue()
+
+
+def get_expiration_datetime(option: ExpirationOption) -> datetime | None:
+    if option == ExpirationOption.indefinite:
+        return None
+
+    now = datetime.now(timezone.utc)
+    mapping = {
+        ExpirationOption.one_hour: timedelta(hours=1),
+        ExpirationOption.six_hours: timedelta(hours=6),
+        ExpirationOption.one_day: timedelta(days=1),
+        ExpirationOption.one_week: timedelta(weeks=1),
+        ExpirationOption.one_month: timedelta(days=30),
+        ExpirationOption.one_year: timedelta(days=365),
+    }
+    return now + mapping[option]
