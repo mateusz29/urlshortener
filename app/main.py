@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 
 from constants import MAX_ATTEMPTS
-from crud import check_db_url_exists, create_db_url, get_db_url, get_db_urls
+from crud import check_db_url_exists, create_db_url, get_db_url, get_db_urls, update_db_url_click_count
 from database import get_session, init_db
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
-from schemas import URLCreate, URLResponse, URLStats
+from schemas import URLCreate, URLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import generate_short_url
 
@@ -55,8 +55,6 @@ async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(ge
     if not db_url:
         raise_not_found(f"URL '{short_url}' doesn't exist")
 
-    db_url.click_count += 1
-    await db.commit()
-    await db.refresh(db_url)
+    await update_db_url_click_count(db_url, db)
 
     return RedirectResponse(db_url.original_url)
