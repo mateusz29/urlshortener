@@ -1,13 +1,14 @@
 from contextlib import asynccontextmanager
+from io import BytesIO
 
-from constants import MAX_ATTEMPTS
+from constants import BASE_URL, MAX_ATTEMPTS
 from crud import check_db_url_exists, create_db_url, get_db_url, get_db_urls, update_db_url_click_count
 from database import get_session, init_db
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from schemas import URLCreate, URLResponse, URLStats
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils import generate_short_url
+from utils import generate_qr_code, generate_short_url
 
 
 @asynccontextmanager
@@ -70,3 +71,15 @@ async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(ge
     await update_db_url_click_count(db_url, db)
 
     return RedirectResponse(db_url.original_url)
+
+
+@app.get("/qr/{short_url}")
+async def get_qr_code(short_url: str, db: AsyncSession = Depends(get_session)) -> StreamingResponse:
+    _ = await get_url_or_404(short_url, db)
+
+    short_url = f"{BASE_URL}/{short_url}"
+    qr_code_bytes = generate_qr_code(short_url)
+
+    return StreamingResponse(
+        BytesIO(qr_code_bytes), media_type="image/png", headers={"Content-Disposition": "inline; filename=qr.png"}
+    )
