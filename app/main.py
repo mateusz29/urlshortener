@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from constants import MAX_ATTEMPTS
 from crud import check_db_url_exists, create_db_url, get_db_url, get_db_urls
 from database import get_session, init_db
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from schemas import URLCreate, URLResponse, URLStats
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,7 +41,7 @@ async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_sessio
 
 
 @app.get("/urls")
-async def get_all_urls(db: AsyncSession = Depends(get_session)) -> list[URLStats]:
+async def get_all_urls(db: AsyncSession = Depends(get_session)) -> list[URLResponse]:
     urls = await get_db_urls(db)
     if not urls:
         raise_not_found("No URLs found")
