@@ -5,6 +5,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+async def get_db_urls(db: AsyncSession) -> list[URL] | None:
+    stmt = select(URL).filter(URL.is_active)
+    result = await db.scalars(stmt)
+    return result.all()
+
+
 async def get_db_url(short_url: str, db: AsyncSession) -> URL | None:
     stmt = select(URL).filter(URL.short_url == short_url, URL.is_active)
     result = await db.scalars(stmt)

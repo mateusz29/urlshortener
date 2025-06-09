@@ -20,6 +20,6 @@ class URLResponse(URLBase):
 class URLStats(BaseModel):
     original_url: str
     short_url: str
-    creqated_at: datetime
+    created_at: datetime
     is_active: bool
     click_count: int

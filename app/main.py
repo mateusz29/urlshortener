@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 
 from constants import MAX_ATTEMPTS
-from crud import check_db_url_exists, create_db_url, get_db_url
+from crud import check_db_url_exists, create_db_url, get_db_url, get_db_urls
 from database import get_session, init_db
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import RedirectResponse
-from schemas import URLCreate, URLResponse
+from schemas import URLCreate, URLResponse, URLStats
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import generate_short_url
 
@@ -23,8 +23,7 @@ def raise_bad_request(message: str):
     raise HTTPException(status_code=400, detail=message)
 
 
-def raise_not_found(request: Request):
-    message = f"URL '{request.url}' doesn't exist"
+def raise_not_found(message: str):
     raise HTTPException(status_code=404, detail=message)
 
 
@@ -41,11 +40,20 @@ async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_sessio
     return new_url
 
 
+@app.get("/urls")
+async def get_all_urls(db: AsyncSession = Depends(get_session)) -> list[URLStats]:
+    urls = await get_db_urls(db)
+    if not urls:
+        raise_not_found("No URLs found")
+
+    return urls
+
+
 @app.get("/{short_url}")
 async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(get_session)) -> RedirectResponse:
     db_url = await get_db_url(short_url, db)
     if not db_url:
-        raise_not_found(Request)
+        raise_not_found(f"URL '{short_url}' doesn't exist")
 
     db_url.click_count += 1
     await db.commit()
