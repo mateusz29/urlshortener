@@ -20,7 +20,7 @@ from utils import generate_qr_code, generate_short_url
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_: FastAPI):
     await init_db()
     yield
 
@@ -45,14 +45,24 @@ async def get_url_or_404(short_url: str, db: AsyncSession) -> URLResponse:
 
 @app.post("/shorten")
 async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_session)) -> URLResponse:
-    for _ in range(MAX_ATTEMPTS):
-        short_url = generate_short_url()
-        if not await check_db_url_exists(short_url, db):
-            break
+    print(url.custom_alias)
+    if url.custom_alias:
+        if await check_db_url_exists(url.custom_alias, db):
+            raise_bad_request(f"Alias {url.custom_alias} is already taken.")
+        
+        short_url = url.custom_alias
+        is_custom_alias = True
     else:
-        raise_bad_request("Failed to generate a unique short code.")
-
-    new_url = await create_db_url(short_url, str(url.original_url), url.expires_in, db)
+        for _ in range(MAX_ATTEMPTS):
+            short_url = generate_short_url()
+            if not await check_db_url_exists(short_url, db):
+                break
+        else:
+            raise_bad_request("Failed to generate a unique short code.")
+        
+        is_custom_alias = False
+    
+    new_url = await create_db_url(short_url, str(url.original_url), url.expires_in, db, is_custom_alias)
     return new_url
 
 
