@@ -11,19 +11,23 @@ class URLBase(BaseModel):
 class URLCreate(URLBase):
     expires_in: ExpirationOption
     custom_alias: str | None = Field(None, min_length=3, max_length=20)
-    
+
     @field_validator("custom_alias")
     def validate_custom_alias(cls, value: str | None) -> str | None:
         if value is None:
             return value
-        
+
         reserved_words = {"urls, shorten", "stats", "urls"}
         if value.lower() in reserved_words:
-            raise ValueError(f"'{value}' is a reserved word and cannot be used as a custom alias.")
+            raise ValueError(
+                f"'{value}' is a reserved word and cannot be used as a custom alias."
+            )
 
         if not value.replace("-", "").replace("_", "").isalnum():
-            raise ValueError("Alias can only contain letters, numbers, hyphens, and underscores.")
-    
+            raise ValueError(
+                "Alias can only contain letters, numbers, hyphens, and underscores."
+            )
+
         return value.lower()
 
 

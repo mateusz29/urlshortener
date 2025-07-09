@@ -21,14 +21,20 @@ async def check_db_url_exists(short_url: str, db: AsyncSession) -> bool:
     return await get_db_url(short_url, db) is not None
 
 
-async def create_db_url(short_url: str, original_url: str, expires_in: ExpirationOption, db: AsyncSession, is_custom_alias: bool = False) -> URL:
+async def create_db_url(
+    short_url: str,
+    original_url: str,
+    expires_in: ExpirationOption,
+    db: AsyncSession,
+    is_custom_alias: bool = False,
+) -> URL:
     new_url = URL(
         short_url=short_url,
         original_url=original_url,
         expires_at=get_expiration_datetime(expires_in),
         is_custom_alias=is_custom_alias,
     )
-    
+
     db.add(new_url)
     await db.commit()
     await db.refresh(new_url)
