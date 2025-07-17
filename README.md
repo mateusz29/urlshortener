@@ -56,3 +56,29 @@ uvicorn main:app --host 0.0.0.0 --port 80 --reload
 - [ ] Make stats better
 - [ ] CI/CD setup
 - [ ] Deploy the app
+
+## Development Commands
+
+### Run ruff to check and fix issues
+
+```bash
+ruff check . --fix
+```
+
+### Apply formatting with ruff
+
+```bash
+ruff format .
+```
+
+### Run type checking with mypy
+
+```bash
+mypy .
+```
+
+### Run tests with verbose output
+
+```bash
+pytest -v ./tests/
+```
