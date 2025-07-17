@@ -8,9 +8,57 @@ dependencies = [
     "alembic>=1.15.2",
     "asyncpg>=0.30.0",
     "fastapi>=0.115.12",
+    "mypy>=1.17.0",
     "pillow>=11.2.1",
     "psycopg2-binary>=2.9.10",
     "qrcode>=8.2",
     "sqlalchemy[asyncio]>=2.0.40",
     "uvicorn[standard]>=0.34.3",
 ]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+
+[tool.ruff.lint]
+select = [
+    "B",      # flake8-bugbear
+    "C4",     # Helps you write better list/set/dict comprehensions.
+    "E",      # pycodestyle errors
+    "FA",     # Verifies files use from __future__ import annotations if a type is used in the module that can be rewritten using PEP 563.
+    "F",      # pyflakes
+    "G",      # Better usage of built-in logging
+    "I",      # isort - Import sorting
+    "LOG",    # Checks for issues using the standard library logging module.
+    "PL",     # pylint
+    "PYI",    # Linting rules for type annotations.
+    "Q",      # Linting rules for quites
+    "RUF",    # Ruff lint
+    "TCH",    # Move type only imports to type-checking condition.
+    "TID",    # Helps you write tidier imports.
+    "UP",     # pyupgrade
+    "W",      # pycodestyle warnings 
+    "SIM",    # flake8-simplify
+]
+
+ignore = [
+    "SIM112", 
+    "G004", 
+    "PLR2004", 
+    "W293", 
+    "W291", 
+    "PLR0913", 
+    "B008"
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.13"
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true

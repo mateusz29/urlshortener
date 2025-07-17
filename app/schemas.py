@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from enums import ExpirationOption
-from pydantic import BaseModel, HttpUrl, Field, field_validator
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 
 class URLBase(BaseModel):
@@ -19,14 +19,10 @@ class URLCreate(URLBase):
 
         reserved_words = {"urls, shorten", "stats", "urls"}
         if value.lower() in reserved_words:
-            raise ValueError(
-                f"'{value}' is a reserved word and cannot be used as a custom alias."
-            )
+            raise ValueError(f"'{value}' is a reserved word and cannot be used as a custom alias.")
 
         if not value.replace("-", "").replace("_", "").isalnum():
-            raise ValueError(
-                "Alias can only contain letters, numbers, hyphens, and underscores."
-            )
+            raise ValueError("Alias can only contain letters, numbers, hyphens, and underscores.")
 
         return value.lower()
 

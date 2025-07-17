@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from utils import get_expiration_datetime
 
 
-async def get_db_urls(db: AsyncSession) -> list[URL] | None:
+async def get_db_urls(db: AsyncSession) -> list[URL]:
     stmt = select(URL).filter(URL.is_active)
     result = await db.scalars(stmt)
-    return result.all()
+    return list(result.all())
 
 
 async def get_db_url(short_url: str, db: AsyncSession) -> URL | None:
@@ -41,14 +41,14 @@ async def create_db_url(
     return new_url
 
 
-async def update_db_url_click_count(db_url: URL, db: AsyncSession):
+async def update_db_url_click_count(db_url: URL, db: AsyncSession) -> URL:
     db_url.click_count += 1
     await db.commit()
     await db.refresh(db_url)
     return db_url
 
 
-async def update_db_url_is_active(db_url: URL, db: AsyncSession):
+async def update_db_url_is_active(db_url: URL, db: AsyncSession) -> URL:
     db_url.is_active = False
     await db.commit()
     await db.refresh(db_url)

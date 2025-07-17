@@ -1,5 +1,6 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from io import BytesIO
 
 from constants import BASE_URL, MAX_ATTEMPTS
@@ -20,7 +21,7 @@ from utils import generate_qr_code, generate_short_url
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
     await init_db()
     yield
 
@@ -28,11 +29,11 @@ async def lifespan(_: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-def raise_bad_request(message: str):
+def raise_bad_request(message: str) -> None:
     raise HTTPException(status_code=400, detail=message)
 
 
-def raise_not_found(message: str):
+def raise_not_found(message: str) -> None:
     raise HTTPException(status_code=404, detail=message)
 
 
@@ -44,9 +45,7 @@ async def get_url_or_404(short_url: str, db: AsyncSession) -> URLResponse:
 
 
 @app.post("/shorten")
-async def create_short_url(
-    url: URLCreate, db: AsyncSession = Depends(get_session)
-) -> URLResponse:
+async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_session)) -> URLResponse:
     print(url.custom_alias)
     if url.custom_alias:
         if await check_db_url_exists(url.custom_alias, db):
@@ -64,9 +63,7 @@ async def create_short_url(
 
         is_custom_alias = False
 
-    new_url = await create_db_url(
-        short_url, str(url.original_url), url.expires_in, db, is_custom_alias
-    )
+    new_url = await create_db_url(short_url, str(url.original_url), url.expires_in, db, is_custom_alias)
     return new_url
 
 
@@ -80,21 +77,17 @@ async def get_all_urls(db: AsyncSession = Depends(get_session)) -> list[URLRespo
 
 
 @app.get("/stats/{short_url}")
-async def get_url_stats(
-    short_url: str, db: AsyncSession = Depends(get_session)
-) -> URLStats:
+async def get_url_stats(short_url: str, db: AsyncSession = Depends(get_session)) -> URLStats:
     db_url = await get_url_or_404(short_url, db)
 
     return db_url
 
 
 @app.get("/{short_url}")
-async def redirect_to_original_url(
-    short_url: str, db: AsyncSession = Depends(get_session)
-) -> RedirectResponse:
+async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(get_session)) -> RedirectResponse:
     db_url = await get_url_or_404(short_url, db)
 
-    if db_url.expires_at and db_url.expires_at <= datetime.now(timezone.utc):
+    if db_url.expires_at and db_url.expires_at <= datetime.now(UTC):
         await update_db_url_is_active(db_url, db)
         raise_not_found(f"URL '{short_url}' is expired.")
 
@@ -103,9 +96,7 @@ async def redirect_to_original_url(
 
 
 @app.get("/qr/{short_url}")
-async def get_qr_code(
-    short_url: str, db: AsyncSession = Depends(get_session)
-) -> StreamingResponse:
+async def get_qr_code(short_url: str, db: AsyncSession = Depends(get_session)) -> StreamingResponse:
     _ = await get_url_or_404(short_url, db)
 
     short_url = f"{BASE_URL}/{short_url}"

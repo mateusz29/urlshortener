@@ -1,6 +1,6 @@
 import secrets
 import string
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from io import BytesIO
 
 import qrcode
@@ -29,7 +29,7 @@ def get_expiration_datetime(option: ExpirationOption) -> datetime | None:
     if option == ExpirationOption.indefinite:
         return None
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     mapping = {
         ExpirationOption.one_hour: timedelta(hours=1),
         ExpirationOption.six_hours: timedelta(hours=6),
