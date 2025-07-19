@@ -48,14 +48,14 @@ uvicorn main:app --host 0.0.0.0 --port 80 --reload
 - [ ] Use environment variables
 - [ ] Add error handling
 - [ ] Add tests
-- [ ] Use ruff and mypy
+- [x] Use ruff and mypy
+- [ ] CI/CD setup
+- [ ] Deploy the app
 - [ ] Implement rate limiting
 - [ ] Add admin key, admin dashboard
 - [ ] Add bulk shortening
 - [ ] Add country/ip tracking
 - [ ] Make stats better
-- [ ] CI/CD setup
-- [ ] Deploy the app
 
 ## Development Commands
 
