@@ -1,7 +1,8 @@
 from datetime import UTC, datetime
 from io import BytesIO
 
-from constants import BASE_URL, MAX_ATTEMPTS
+from config import settings
+from constants import MAX_ATTEMPTS
 from crud import (
     check_db_url_exists,
     create_db_url,
@@ -90,7 +91,7 @@ async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(ge
 async def get_qr_code(short_url: str, db: AsyncSession = Depends(get_session)) -> StreamingResponse:
     _ = await get_url_or_404(short_url, db)
 
-    short_url = f"{BASE_URL}/{short_url}"
+    short_url = f"{settings.base_url}/{short_url}"
     qr_code_bytes = generate_qr_code(short_url)
 
     return StreamingResponse(
