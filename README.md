@@ -45,7 +45,7 @@ uvicorn main:app --host 0.0.0.0 --port 80 --reload
 ## TODO
 
 - [ ] Create responsive frontend
-- [ ] Use environment variables
+- [x] Use environment variables
 - [ ] Add error handling
 - [ ] Add tests
 - [x] Use ruff and mypy
