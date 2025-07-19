@@ -1,5 +1,3 @@
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from io import BytesIO
 
@@ -12,21 +10,14 @@ from crud import (
     update_db_url_click_count,
     update_db_url_is_active,
 )
-from database import get_session, init_db
+from database import get_session
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse, StreamingResponse
 from schemas import URLCreate, URLResponse, URLStats
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import generate_qr_code, generate_short_url
 
-
-@asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
-    await init_db()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 
 def raise_bad_request(message: str) -> None:
