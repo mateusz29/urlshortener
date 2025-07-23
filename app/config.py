@@ -7,12 +7,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    postgres_user: str
-    postgres_password: str
-    postgres_db: str
-    postgres_host: str
-    postgres_port: int
-    base_url: str
+    postgres_user: str = ""
+    postgres_password: str = ""
+    postgres_db: str = ""
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    base_url: str = ""
 
     @property
     def db_url(self) -> str:
