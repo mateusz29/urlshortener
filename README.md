@@ -45,7 +45,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ## TODO
 
 - [ ] Create responsive frontend
-- [ ] Add pagination
+- [x] Add pagination
 - [x] Use environment variables
 - [ ] Add error handling
 - [ ] Add tests
