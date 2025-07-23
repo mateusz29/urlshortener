@@ -49,7 +49,6 @@ async def get_url_or_404(short_url: str, db: AsyncSession) -> URLResponse:
 
 @app.post("/shorten")
 async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_session)) -> URLResponse:
-    print(url.custom_alias)
     if url.custom_alias:
         if await check_db_url_exists(url.custom_alias, db):
             raise_bad_request(f"Alias {url.custom_alias} is already taken.")
