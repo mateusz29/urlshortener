@@ -40,3 +40,11 @@ class URLStats(BaseModel):
     expires_at: datetime | None
     is_active: bool
     click_count: int
+
+
+class URLListResponse(BaseModel):
+    urls: list[URLResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

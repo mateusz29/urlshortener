@@ -1,5 +1,7 @@
+import math
 from datetime import UTC, datetime
 from io import BytesIO
+from typing import Annotated
 
 from config import settings
 from constants import MAX_ATTEMPTS
@@ -12,10 +14,10 @@ from crud import (
     update_db_url_is_active,
 )
 from database import get_session
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, StreamingResponse
-from schemas import URLCreate, URLResponse, URLStats
+from schemas import URLCreate, URLListResponse, URLResponse, URLStats
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import generate_qr_code, generate_short_url
 
@@ -70,12 +72,36 @@ async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_sessio
 
 
 @app.get("/urls")
-async def get_all_urls(db: AsyncSession = Depends(get_session)) -> list[URLResponse]:
-    urls = await get_db_urls(db)
+async def get_all_urls(
+    db: AsyncSession = Depends(get_session),
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 10,
+) -> URLListResponse:
+    skip = (page - 1) * page_size
+    urls, total = await get_db_urls(skip, page_size, db)
+
     if not urls:
         raise_not_found("No URLs found")
 
-    return urls
+    total_pages = math.ceil(total / page_size)
+
+    url_responses = [
+        URLResponse(
+            original_url=url.original_url,
+            short_url=url.short_url,
+            is_active=url.is_active,
+            expires_at=url.expires_at,
+        )
+        for url in urls
+    ]
+
+    return URLListResponse(
+        urls=url_responses,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+    )
 
 
 @app.get("/stats/{short_url}")

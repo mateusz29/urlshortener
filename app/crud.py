@@ -1,14 +1,21 @@
 from enums import ExpirationOption
 from models import URL
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import get_expiration_datetime
 
 
-async def get_db_urls(db: AsyncSession) -> list[URL]:
-    stmt = select(URL).filter(URL.is_active)
-    result = await db.scalars(stmt)
-    return list(result.all())
+async def get_db_urls(skip: int, limit: int, db: AsyncSession) -> tuple[list[URL], int]:
+    stmt = select(URL, func.count().over().label("total_count")).filter(URL.is_active).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    if not rows:
+        return [], 0
+
+    urls = [row.URL for row in rows]
+    total = rows[0].total_count
+    return urls, total
 
 
 async def get_db_url(short_url: str, db: AsyncSession) -> URL | None:
