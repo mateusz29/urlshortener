@@ -13,12 +13,23 @@ from crud import (
 )
 from database import get_session
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, StreamingResponse
 from schemas import URLCreate, URLResponse, URLStats
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import generate_qr_code, generate_short_url
 
 app = FastAPI()
+
+origins = ["http://localhost:3000"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def raise_bad_request(message: str) -> None:

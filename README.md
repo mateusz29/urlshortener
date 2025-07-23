@@ -15,7 +15,7 @@ A simple and extensible FastAPI-based URL shortener service with QR code generat
 ## Running the App
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 80 --reload
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## API Endpoints
