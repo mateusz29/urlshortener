@@ -20,7 +20,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 ## API Endpoints
 
-### `POST /shorten` – Create a short URL  
+### `POST /shorten` – Create a short URL
 **Request body:**
 ```json
 {
@@ -63,19 +63,19 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ### Run ruff to check and fix issues
 
 ```bash
-ruff check . --fix
+uv run ruff check . --fix
 ```
 
 ### Apply formatting with ruff
 
 ```bash
-ruff format .
+uv run ruff format .
 ```
 
 ### Run type checking with mypy
 
 ```bash
-mypy .
+uv run mypy .
 ```
 
 ### Run tests with verbose output

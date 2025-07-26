@@ -8,7 +8,6 @@ dependencies = [
     "alembic>=1.15.2",
     "asyncpg>=0.30.0",
     "fastapi>=0.115.12",
-    "mypy>=1.17.0",
     "pillow>=11.2.1",
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.10.1",
@@ -17,10 +16,16 @@ dependencies = [
     "uvicorn[standard]>=0.34.3",
 ]
 
+[dependency-groups]
+dev = [
+    "mypy>=1.17.0",
+    "pre-commit>=4.2.0",
+    "ruff>=0.12.5",
+]
+
 [tool.ruff]
 line-length = 120
 target-version = "py313"
-
 
 [tool.ruff.lint]
 select = [
@@ -39,17 +44,17 @@ select = [
     "TCH",    # Move type only imports to type-checking condition.
     "TID",    # Helps you write tidier imports.
     "UP",     # pyupgrade
-    "W",      # pycodestyle warnings 
+    "W",      # pycodestyle warnings
     "SIM",    # flake8-simplify
 ]
 
 ignore = [
-    "SIM112", 
-    "G004", 
-    "PLR2004", 
-    "W293", 
-    "W291", 
-    "PLR0913", 
+    "SIM112",
+    "G004",
+    "PLR2004",
+    "W293",
+    "W291",
+    "PLR0913",
     "B008"
 ]
 
