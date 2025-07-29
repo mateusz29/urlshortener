@@ -15,12 +15,12 @@ A simple and extensible FastAPI-based URL shortener service with QR code generat
 ## Running the App
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 80 --reload
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## API Endpoints
 
-### `POST /shorten` – Create a short URL  
+### `POST /shorten` – Create a short URL
 **Request body:**
 ```json
 {
@@ -45,14 +45,41 @@ uvicorn main:app --host 0.0.0.0 --port 80 --reload
 ## TODO
 
 - [ ] Create responsive frontend
-- [ ] Use environment variables
+- [x] Add pagination
+- [x] Use environment variables
 - [ ] Add error handling
 - [ ] Add tests
-- [ ] Use ruff and mypy
+- [x] Use ruff and mypy
+- [ ] CI/CD setup
+- [ ] Deploy the app
 - [ ] Implement rate limiting
 - [ ] Add admin key, admin dashboard
 - [ ] Add bulk shortening
 - [ ] Add country/ip tracking
 - [ ] Make stats better
-- [ ] CI/CD setup
-- [ ] Deploy the app
+
+## Development Commands
+
+### Run ruff to check and fix issues
+
+```bash
+uv run ruff check . --fix
+```
+
+### Apply formatting with ruff
+
+```bash
+uv run ruff format .
+```
+
+### Run type checking with mypy
+
+```bash
+uv run mypy .
+```
+
+### Run tests with verbose output
+
+```bash
+pytest -v ./tests/
+```

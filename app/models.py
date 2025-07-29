@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -14,19 +14,13 @@ class URL(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     original_url: Mapped[str] = mapped_column(String, nullable=False)
     short_url: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False
-    )
-    expires_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(UTC), nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     click_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    is_custom_alias: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
+    is_custom_alias: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<URL(id={self.id}, original_url='{self.original_url}', "
             f"short_url='{self.short_url}', created_at={self.created_at}, "
