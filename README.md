@@ -50,7 +50,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 - [ ] Add error handling
 - [x] Add tests
 - [x] Use ruff and mypy
-- [ ] CI/CD setup
+- [x] CI/CD setup
 - [ ] Deploy the app
 - [ ] Implement rate limiting
 - [ ] Add admin key, admin dashboard
