@@ -15,7 +15,7 @@ A simple and extensible FastAPI-based URL shortener service with QR code generat
 ## Running the App
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## API Endpoints
@@ -48,7 +48,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 - [x] Add pagination
 - [x] Use environment variables
 - [ ] Add error handling
-- [ ] Add tests
+- [x] Add tests
 - [x] Use ruff and mypy
 - [ ] CI/CD setup
 - [ ] Deploy the app
@@ -81,5 +81,5 @@ uv run mypy .
 ### Run tests with verbose output
 
 ```bash
-pytest -v ./tests/
+uv run pytest -v
 ```

@@ -4,7 +4,8 @@ from datetime import UTC, datetime, timedelta
 from io import BytesIO
 
 import qrcode
-from enums import ExpirationOption
+
+from app.enums import ExpirationOption
 
 
 def generate_short_url(length: int = 10) -> str:

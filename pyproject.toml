@@ -18,8 +18,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "mypy>=1.17.0",
     "pre-commit>=4.2.0",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
     "ruff>=0.12.5",
 ]
 
@@ -68,3 +71,7 @@ python_version = "3.13"
 check_untyped_defs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
