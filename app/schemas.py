@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from enums import ExpirationOption
 from pydantic import BaseModel, Field, HttpUrl, field_validator
+
+from app.enums import ExpirationOption
 
 
 class URLBase(BaseModel):
@@ -33,8 +34,7 @@ class URLResponse(URLBase):
     expires_at: datetime | None
 
 
-class URLStats(BaseModel):
-    original_url: str
+class URLStats(URLBase):
     short_url: str
     created_at: datetime
     expires_at: datetime | None

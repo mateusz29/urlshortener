@@ -1,11 +1,17 @@
 import math
 from datetime import UTC, datetime
 from io import BytesIO
-from typing import Annotated
+from typing import Annotated, NoReturn
 
-from config import settings
-from constants import MAX_ATTEMPTS
-from crud import (
+from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse, StreamingResponse
+from pydantic import HttpUrl
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.constants import MAX_ATTEMPTS
+from app.crud import (
     check_db_url_exists,
     create_db_url,
     get_db_url,
@@ -13,13 +19,10 @@ from crud import (
     update_db_url_click_count,
     update_db_url_is_active,
 )
-from database import get_session
-from fastapi import Depends, FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, StreamingResponse
-from schemas import URLCreate, URLListResponse, URLResponse, URLStats
-from sqlalchemy.ext.asyncio import AsyncSession
-from utils import generate_qr_code, generate_short_url
+from app.database import get_session
+from app.models import URL
+from app.schemas import URLCreate, URLListResponse, URLResponse, URLStats
+from app.utils import generate_qr_code, generate_short_url
 
 app = FastAPI()
 
@@ -38,14 +41,15 @@ def raise_bad_request(message: str) -> None:
     raise HTTPException(status_code=400, detail=message)
 
 
-def raise_not_found(message: str) -> None:
+def raise_not_found(message: str) -> NoReturn:
     raise HTTPException(status_code=404, detail=message)
 
 
-async def get_url_or_404(short_url: str, db: AsyncSession) -> URLResponse:
+async def get_url_or_404(short_url: str, db: AsyncSession) -> URL:
     db_url = await get_db_url(short_url, db)
     if not db_url:
         raise_not_found(f"URL '{short_url}' doesn't exist.")
+
     return db_url
 
 
@@ -68,7 +72,13 @@ async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_sessio
         is_custom_alias = False
 
     new_url = await create_db_url(short_url, str(url.original_url), url.expires_in, db, is_custom_alias)
-    return new_url
+
+    return URLResponse(
+        original_url=HttpUrl(url.original_url),
+        short_url=new_url.short_url,
+        is_active=new_url.is_active,
+        expires_at=new_url.expires_at,
+    )
 
 
 @app.get("/urls")
@@ -87,7 +97,7 @@ async def get_all_urls(
 
     url_responses = [
         URLResponse(
-            original_url=url.original_url,
+            original_url=HttpUrl(url.original_url),
             short_url=url.short_url,
             is_active=url.is_active,
             expires_at=url.expires_at,
@@ -108,7 +118,14 @@ async def get_all_urls(
 async def get_url_stats(short_url: str, db: AsyncSession = Depends(get_session)) -> URLStats:
     db_url = await get_url_or_404(short_url, db)
 
-    return db_url
+    return URLStats(
+        original_url=HttpUrl(db_url.original_url),
+        short_url=db_url.short_url,
+        created_at=db_url.created_at,
+        expires_at=db_url.expires_at,
+        is_active=db_url.is_active,
+        click_count=db_url.click_count,
+    )
 
 
 @app.get("/{short_url}")
@@ -120,7 +137,7 @@ async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(ge
         raise_not_found(f"URL '{short_url}' is expired.")
 
     await update_db_url_click_count(db_url, db)
-    return RedirectResponse(db_url.original_url)
+    return RedirectResponse(str(db_url.original_url))
 
 
 @app.get("/qr/{short_url}")
