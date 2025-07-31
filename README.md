@@ -81,5 +81,5 @@ uv run mypy .
 ### Run tests with verbose output
 
 ```bash
-uv run pytest -v
+uv run pytest --cov=app --cov-report=html --cov-report=term-missing -v
 ```
