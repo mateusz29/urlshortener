@@ -61,7 +61,7 @@ async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_sessio
     new_url = await create_db_url(short_url, str(url.original_url), url.expires_in, db, is_custom_alias)
 
     return URLResponse(
-        original_url=HttpUrl(url.original_url),
+        original_url=HttpUrl(new_url.original_url),
         short_url=new_url.short_url,
         is_active=new_url.is_active,
         expires_at=new_url.expires_at,
