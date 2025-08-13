@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "ShortLink - Fast URL Shortener",
   description:
     "Create short, memorable links in seconds. Track clicks, generate QR codes, and manage your URLs with ease.",
+  icons: {
+    icon: '/favicon.ico',
+  }
 }
 
 export default function RootLayout({
