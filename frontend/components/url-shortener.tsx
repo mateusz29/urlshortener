@@ -135,7 +135,7 @@ export function UrlShortener() {
                 </Label>
                 <Select value={expiresIn} onValueChange={setExpiresIn}>
                   <SelectTrigger className="h-12">
-                    <SelectValue />
+                    <span>{expirationOptions.find(o => o.value === expiresIn)?.label || "Never"}</span>
                   </SelectTrigger>
                   <SelectContent>
                     {expirationOptions.map((option) => (
