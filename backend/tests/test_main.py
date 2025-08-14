@@ -4,10 +4,10 @@ import pytest
 from fastapi import HTTPException
 from pydantic import HttpUrl
 
-from app.main import (
+from app.routers.qr import get_qr_code
+from app.routers.urls import (
     create_short_url,
     get_all_urls,
-    get_qr_code,
     get_url_or_404,
     get_url_stats,
     raise_bad_request,
@@ -37,13 +37,13 @@ class TestUtilityFunctions:
 class TestGetUrlOr404:
     @pytest.mark.asyncio
     async def test_get_url_or_404_success(self, mock_db_session: AsyncMock, sample_db_url: MockURL) -> None:
-        with patch("app.main.get_db_url", new_callable=AsyncMock, return_value=sample_db_url):
+        with patch("app.routers.urls.get_db_url", new_callable=AsyncMock, return_value=sample_db_url):
             result = await get_url_or_404("abc123", mock_db_session)
             assert result == sample_db_url
 
     @pytest.mark.asyncio
     async def test_get_url_or_404_not_found(self, mock_db_session: AsyncMock) -> None:
-        with patch("app.main.get_db_url", new_callable=AsyncMock, return_value=None):
+        with patch("app.routers.urls.get_db_url", new_callable=AsyncMock, return_value=None):
             with pytest.raises(HTTPException) as exc_info:
                 await get_url_or_404("nonexistent", mock_db_session)
 
@@ -57,8 +57,8 @@ class TestCreateShortUrl:
         self, mock_db_session: AsyncMock, sample_url_data_with_custom_alias: URLCreate, sample_custom_alias_url: MockURL
     ) -> None:
         with (
-            patch("app.main.check_db_url_exists", new_callable=AsyncMock, return_value=False),
-            patch("app.main.create_db_url", new_callable=AsyncMock, return_value=sample_custom_alias_url),
+            patch("app.routers.urls.check_db_url_exists", new_callable=AsyncMock, return_value=False),
+            patch("app.routers.urls.create_db_url", new_callable=AsyncMock, return_value=sample_custom_alias_url),
         ):
             result = await create_short_url(sample_url_data_with_custom_alias, mock_db_session)
 
@@ -74,7 +74,7 @@ class TestCreateShortUrl:
     async def test_create_short_url_custom_alias_taken(
         self, mock_db_session: AsyncMock, sample_url_data_with_custom_alias: URLCreate
     ) -> None:
-        with patch("app.main.check_db_url_exists", new_callable=AsyncMock, return_value=True):
+        with patch("app.routers.urls.check_db_url_exists", new_callable=AsyncMock, return_value=True):
             with pytest.raises(HTTPException) as exc_info:
                 await create_short_url(sample_url_data_with_custom_alias, mock_db_session)
 
@@ -86,9 +86,9 @@ class TestCreateShortUrl:
         self, mock_db_session: AsyncMock, sample_url_data: URLCreate, sample_db_url: MockURL
     ) -> None:
         with (
-            patch("app.main.generate_short_url", return_value="abc123"),
-            patch("app.main.check_db_url_exists", new_callable=AsyncMock, return_value=False),
-            patch("app.main.create_db_url", new_callable=AsyncMock, return_value=sample_db_url),
+            patch("app.routers.urls.generate_short_url", return_value="abc123"),
+            patch("app.routers.urls.check_db_url_exists", new_callable=AsyncMock, return_value=False),
+            patch("app.routers.urls.create_db_url", new_callable=AsyncMock, return_value=sample_db_url),
         ):
             result = await create_short_url(sample_url_data, mock_db_session)
 
@@ -105,8 +105,8 @@ class TestCreateShortUrl:
         self, mock_db_session: AsyncMock, sample_url_data: URLCreate
     ) -> None:
         with (
-            patch("app.main.generate_short_url", return_value="abc123"),
-            patch("app.main.check_db_url_exists", new_callable=AsyncMock, return_value=True),
+            patch("app.routers.urls.generate_short_url", return_value="abc123"),
+            patch("app.routers.urls.check_db_url_exists", new_callable=AsyncMock, return_value=True),
         ):
             with pytest.raises(HTTPException) as exc_info:
                 await create_short_url(sample_url_data, mock_db_session)
@@ -119,7 +119,9 @@ class TestGetAllUrls:
     @pytest.mark.asyncio
     async def test_get_all_urls_success(self, mock_db_session: AsyncMock, multiple_db_urls: list[MockURL]) -> None:
         with patch(
-            "app.main.get_db_urls", new_callable=AsyncMock, return_value=(multiple_db_urls, len(multiple_db_urls))
+            "app.routers.urls.get_db_urls",
+            new_callable=AsyncMock,
+            return_value=(multiple_db_urls, len(multiple_db_urls)),
         ):
             result = await get_all_urls(mock_db_session, 1, 10)
 
@@ -131,7 +133,7 @@ class TestGetAllUrls:
 
     @pytest.mark.asyncio
     async def test_get_all_urls_empty(self, mock_db_session: AsyncMock) -> None:
-        with patch("app.main.get_db_urls", new_callable=AsyncMock, return_value=([], 0)):
+        with patch("app.routers.urls.get_db_urls", new_callable=AsyncMock, return_value=([], 0)):
             with pytest.raises(HTTPException) as exc_info:
                 await get_all_urls(mock_db_session, 1, 10)
 
@@ -143,7 +145,7 @@ class TestGetAllUrls:
         # Test second page with page_size=2
         page_urls = multiple_db_urls[2:3]
 
-        with patch("app.main.get_db_urls", new_callable=AsyncMock, return_value=(page_urls, 3)):
+        with patch("app.routers.urls.get_db_urls", new_callable=AsyncMock, return_value=(page_urls, 3)):
             result = await get_all_urls(mock_db_session, 2, 2)
 
             assert result.total == 3
@@ -156,7 +158,7 @@ class TestGetAllUrls:
 class TestGetUrlStats:
     @pytest.mark.asyncio
     async def test_get_url_stats_success(self, mock_db_session: AsyncMock, sample_db_url: MockURL) -> None:
-        with patch("app.main.get_url_or_404", new_callable=AsyncMock, return_value=sample_db_url):
+        with patch("app.routers.urls.get_url_or_404", new_callable=AsyncMock, return_value=sample_db_url):
             result = await get_url_stats("abc123", mock_db_session)
 
             expected_response = URLStats(
@@ -174,8 +176,8 @@ class TestRedirectToOriginalUrl:
     @pytest.mark.asyncio
     async def test_redirect_success(self, mock_db_session: AsyncMock, sample_db_url: MockURL) -> None:
         with (
-            patch("app.main.get_url_or_404", new_callable=AsyncMock, return_value=sample_db_url),
-            patch("app.main.update_db_url_click_count", new_callable=AsyncMock) as mock_update,
+            patch("app.routers.urls.get_url_or_404", new_callable=AsyncMock, return_value=sample_db_url),
+            patch("app.routers.urls.update_db_url_click_count", new_callable=AsyncMock) as mock_update,
         ):
             result = await redirect_to_original_url("abc123", mock_db_session)
 
@@ -186,8 +188,8 @@ class TestRedirectToOriginalUrl:
     @pytest.mark.asyncio
     async def test_redirect_expired_url(self, mock_db_session: AsyncMock, sample_expired_url: MockURL) -> None:
         with (
-            patch("app.main.get_url_or_404", new_callable=AsyncMock, return_value=sample_expired_url),
-            patch("app.main.update_db_url_is_active", new_callable=AsyncMock) as mock_update,
+            patch("app.routers.urls.get_url_or_404", new_callable=AsyncMock, return_value=sample_expired_url),
+            patch("app.routers.urls.update_db_url_is_active", new_callable=AsyncMock) as mock_update,
         ):
             with pytest.raises(HTTPException) as exc_info:
                 await redirect_to_original_url("expired123", mock_db_session)
@@ -203,8 +205,8 @@ class TestGetQrCode:
         mock_qr_bytes = b"fake_qr_code_data"
 
         with (
-            patch("app.main.get_url_or_404", new_callable=AsyncMock, return_value=sample_db_url),
-            patch("app.main.generate_qr_code", return_value=mock_qr_bytes),
+            patch("app.routers.qr.get_url_or_404", new_callable=AsyncMock, return_value=sample_db_url),
+            patch("app.routers.qr.generate_qr_code", return_value=mock_qr_bytes),
         ):
             result = await get_qr_code("abc123", mock_db_session)
 

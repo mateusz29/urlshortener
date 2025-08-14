@@ -48,3 +48,8 @@ class URLListResponse(BaseModel):
     page: int
     page_size: int
     total_pages: int
+
+
+class URLCheckResponse(BaseModel):
+    exists: bool
+    short_url: str
