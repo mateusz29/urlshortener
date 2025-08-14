@@ -14,7 +14,9 @@ class URL(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     original_url: Mapped[str] = mapped_column(String, nullable=False)
     short_url: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(UTC), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     click_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

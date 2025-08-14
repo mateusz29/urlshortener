@@ -1,15 +1,12 @@
 import math
 from datetime import UTC, datetime
-from io import BytesIO
 from typing import Annotated, NoReturn
 
-from fastapi import Depends, FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import RedirectResponse
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
 from app.constants import MAX_ATTEMPTS
 from app.crud import (
     check_db_url_exists,
@@ -21,20 +18,10 @@ from app.crud import (
 )
 from app.database import get_session
 from app.models import URL
-from app.schemas import URLCreate, URLListResponse, URLResponse, URLStats
-from app.utils import generate_qr_code, generate_short_url
+from app.schemas import URLCheckResponse, URLCreate, URLListResponse, URLResponse, URLStats
+from app.utils import generate_short_url
 
-app = FastAPI()
-
-origins = ["http://localhost:3000"]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 
 def raise_bad_request(message: str) -> None:
@@ -53,7 +40,7 @@ async def get_url_or_404(short_url: str, db: AsyncSession) -> URL:
     return db_url
 
 
-@app.post("/shorten")
+@router.post("/shorten")
 async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_session)) -> URLResponse:
     if url.custom_alias:
         if await check_db_url_exists(url.custom_alias, db):
@@ -74,14 +61,14 @@ async def create_short_url(url: URLCreate, db: AsyncSession = Depends(get_sessio
     new_url = await create_db_url(short_url, str(url.original_url), url.expires_in, db, is_custom_alias)
 
     return URLResponse(
-        original_url=HttpUrl(url.original_url),
+        original_url=HttpUrl(new_url.original_url),
         short_url=new_url.short_url,
         is_active=new_url.is_active,
         expires_at=new_url.expires_at,
     )
 
 
-@app.get("/urls")
+@router.get("/urls")
 async def get_all_urls(
     db: AsyncSession = Depends(get_session),
     page: Annotated[int, Query(ge=1)] = 1,
@@ -114,7 +101,7 @@ async def get_all_urls(
     )
 
 
-@app.get("/stats/{short_url}")
+@router.get("/stats/{short_url}")
 async def get_url_stats(short_url: str, db: AsyncSession = Depends(get_session)) -> URLStats:
     db_url = await get_url_or_404(short_url, db)
 
@@ -128,7 +115,7 @@ async def get_url_stats(short_url: str, db: AsyncSession = Depends(get_session))
     )
 
 
-@app.get("/{short_url}")
+@router.get("/{short_url}")
 async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(get_session)) -> RedirectResponse:
     db_url = await get_url_or_404(short_url, db)
 
@@ -140,15 +127,14 @@ async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(ge
     return RedirectResponse(str(db_url.original_url))
 
 
-@app.get("/qr/{short_url}")
-async def get_qr_code(short_url: str, db: AsyncSession = Depends(get_session)) -> StreamingResponse:
-    _ = await get_url_or_404(short_url, db)
+@router.get("/check/{short_url}")
+async def check_url_exists(short_url: str, db: AsyncSession = Depends(get_session)) -> URLCheckResponse:
+    try:
+        db_url = await get_url_or_404(short_url, db)
 
-    short_url = f"{settings.base_url}/{short_url}"
-    qr_code_bytes = generate_qr_code(short_url)
+        if db_url.expires_at and db_url.expires_at <= datetime.now(UTC):
+            raise_not_found(f"URL '{short_url}' is expired.")
 
-    return StreamingResponse(
-        BytesIO(qr_code_bytes),
-        media_type="image/png",
-        headers={"Content-Disposition": "inline; filename=qr.png"},
-    )
+        return URLCheckResponse(exists=True, short_url=short_url)
+    except Exception:
+        raise_not_found(f"URL '{short_url}' doesn't exist.")
