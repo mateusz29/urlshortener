@@ -18,7 +18,7 @@ from app.crud import (
 )
 from app.database import get_session
 from app.models import URL
-from app.schemas import URLCreate, URLListResponse, URLResponse, URLStats
+from app.schemas import URLCheckResponse, URLCreate, URLListResponse, URLResponse, URLStats
 from app.utils import generate_short_url
 
 router = APIRouter()
@@ -125,3 +125,16 @@ async def redirect_to_original_url(short_url: str, db: AsyncSession = Depends(ge
 
     await update_db_url_click_count(db_url, db)
     return RedirectResponse(str(db_url.original_url))
+
+
+@router.get("/check/{short_url}")
+async def check_url_exists(short_url: str, db: AsyncSession = Depends(get_session)) -> URLCheckResponse:
+    try:
+        db_url = await get_url_or_404(short_url, db)
+
+        if db_url.expires_at and db_url.expires_at <= datetime.now(UTC):
+            raise_not_found(f"URL '{short_url}' is expired.")
+
+        return URLCheckResponse(exists=True, short_url=short_url)
+    except Exception:
+        raise_not_found(f"URL '{short_url}' doesn't exist.")
