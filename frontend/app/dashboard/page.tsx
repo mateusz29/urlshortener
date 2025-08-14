@@ -92,60 +92,66 @@ export default function DashboardPage() {
 
     return (
       <Card className="border shadow-sm">
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-center sm:text-left">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, urls.total)} of{" "}
                 {urls.total} URLs
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
                 >
                   <ChevronLeft className="h-4 w-4" />
+                  <span className="sr-only sm:not-sr-only sm:ml-2">Previous</span>
                 </Button>
 
-                {getVisiblePages().map((page, index) => {
-                  if (page === "...") {
-                    return (
-                      <span key={`dots-${index}`} className="px-2 text-muted-foreground">
-                        ...
-                      </span>
-                    )
-                  }
+                <div className="hidden xs:flex items-center gap-1">
+                  {getVisiblePages().map((page, index) => {
+                    if (page === "...") {
+                      return (
+                        <span key={`dots-${index}`} className="px-2 text-muted-foreground text-sm">
+                          ...
+                        </span>
+                      )
+                    }
 
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page as number)}
-                      className="min-w-[40px]"
-                    >
-                      {page}
-                    </Button>
-                  )
-                })}
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page as number)}
+                        className="h-8 w-8 p-0 text-sm"
+                      >
+                        {page}
+                      </Button>
+                    )
+                  })}
+                </div>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage((p) => Math.min(urls.total_pages, p + 1))}
                   disabled={currentPage === urls.total_pages}
+                  className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
                 >
                   <ChevronRight className="h-4 w-4" />
+                  <span className="sr-only sm:not-sr-only sm:ml-2">Next</span>
                 </Button>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Show:</span>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground hidden sm:inline">Show:</span>
                 <Select
                   value={pageSize.toString()}
                   onValueChange={(value) => {
@@ -153,7 +159,7 @@ export default function DashboardPage() {
                     setCurrentPage(1)
                   }}
                 >
-                  <SelectTrigger className="w-20">
+                  <SelectTrigger className="w-16 h-8">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -162,7 +168,7 @@ export default function DashboardPage() {
                     <SelectItem value="100">100</SelectItem>
                   </SelectContent>
                 </Select>
-                <span className="text-sm text-muted-foreground">per page</span>
+                <span className="text-muted-foreground hidden sm:inline">per page</span>
               </div>
             </div>
           </div>
@@ -175,8 +181,8 @@ export default function DashboardPage() {
     <div className="bg-background min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground">All URLs</h1>
-          <p className="text-muted-foreground mt-2 text-lg">
+          <h1 className="text-2xl sm:text-4xl font-bold text-foreground">All URLs</h1>
+          <p className="text-muted-foreground mt-2 text-base sm:text-lg">
             Browse and explore all shortened URLs created by everyone
           </p>
         </div>
@@ -186,29 +192,31 @@ export default function DashboardPage() {
             <div className="grid gap-4 mb-8">
               {displayUrls.map((url) => (
                 <Card key={url.short_url} className="border shadow-sm">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-3 flex-1 min-w-0">
-                        <div className="flex items-center gap-3">
-                          <Badge variant={url.is_active ? "default" : "secondary"} className="px-3 py-1">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                      <div className="space-y-3 flex-1 min-w-0 w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                          <Badge variant={url.is_active ? "default" : "secondary"} className="px-3 py-1 w-fit">
                             {url.is_active ? "Active" : "Inactive"}
                           </Badge>
                           {url.expires_at && (
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
                               <Calendar className="h-4 w-4" />
-                              Expires {formatDistanceToNow(new Date(url.expires_at), { addSuffix: true })}
+                              <span className="truncate">
+                                Expires {formatDistanceToNow(new Date(url.expires_at), { addSuffix: true })}
+                              </span>
                             </div>
                           )}
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <div>
                             <p className="text-sm text-muted-foreground mb-1">Original URL</p>
                             <a
                               href={url.original_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-foreground hover:text-primary transition-colors truncate block font-medium"
+                              className="text-foreground hover:text-primary transition-colors break-all sm:truncate block font-medium text-sm sm:text-base"
                             >
                               {url.original_url}
                             </a>
@@ -216,15 +224,15 @@ export default function DashboardPage() {
 
                           <div>
                             <p className="text-sm text-muted-foreground mb-1">Short URL</p>
-                            <div className="flex items-center gap-2">
-                              <code className="bg-muted px-2 py-1 rounded text-sm font-mono">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <code className="bg-muted px-2 py-1 rounded text-xs sm:text-sm font-mono break-all">
                                 {process.env.NEXT_PUBLIC_BASE_URL}/{url.short_url}
                               </code>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => copyToClipboard(url.short_url)}
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8 p-0 flex-shrink-0"
                               >
                                 {copiedUrl === url.short_url ? (
                                   <CheckCircle className="h-4 w-4 text-green-500" />
@@ -237,29 +245,32 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2">
-                        <Button variant="outline" size="sm" asChild>
+                      <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
+                        <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none bg-transparent">
                           <Link href={`/stats/${url.short_url}`}>
                             <Activity className="h-4 w-4 mr-2" />
-                            View Stats
+                            <span className="hidden xs:inline">View Stats</span>
+                            <span className="xs:hidden">Stats</span>
                           </Link>
                         </Button>
 
                         <QrCodeDialog shortUrl={url.short_url}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="flex-1 sm:flex-none bg-transparent">
                             <QrCode className="h-4 w-4 mr-2" />
-                            QR Code
+                            <span className="hidden xs:inline">QR Code</span>
+                            <span className="xs:hidden">QR</span>
                           </Button>
                         </QrCodeDialog>
 
-                        <Button variant="outline" size="sm" asChild>
+                        <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none bg-transparent">
                           <a
                             href={`${process.env.NEXT_PUBLIC_BASE_URL}/${url.short_url}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             <ExternalLink className="h-4 w-4 mr-2" />
-                            Visit
+                            <span className="hidden xs:inline">Visit</span>
+                            <span className="xs:hidden">Go</span>
                           </a>
                         </Button>
                       </div>
