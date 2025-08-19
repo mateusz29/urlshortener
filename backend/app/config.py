@@ -1,3 +1,4 @@
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,12 +8,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    postgres_user: str = ""
-    postgres_password: str = ""
-    postgres_db: str = ""
-    postgres_host: str = ""
-    postgres_port: int = 5432
-    base_url: str = ""
+    postgres_user: str = Field(default="", validation_alias=AliasChoices("PGUSER", "POSTGRES_USER"))
+    postgres_password: str = Field(default="", validation_alias=AliasChoices("PGPASSWORD", "POSTGRES_PASSWORD"))
+    postgres_db: str = Field(default="", validation_alias=AliasChoices("PGDATABASE", "POSTGRES_DB"))
+    postgres_host: str = Field(default="", validation_alias=AliasChoices("PGHOST", "POSTGRES_HOST"))
+    postgres_port: int = Field(default=5432, validation_alias=AliasChoices("PGPORT", "POSTGRES_PORT"))
+    base_url: str = Field(default="", validation_alias=AliasChoices("BASE_URL"))
 
     @property
     def db_url(self) -> str:
