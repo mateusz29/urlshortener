@@ -10,6 +10,7 @@ import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
 import type { URLListResponse } from "@/types/api"
 import { QrCodeDialog } from "@/components/qr-code-dialog"
+import { getBaseUrl } from "@/lib/utils"
 
 export default function DashboardPage() {
   const [urls, setUrls] = useState<URLListResponse | null>(null)
@@ -21,7 +22,7 @@ export default function DashboardPage() {
   const fetchUrls = async (page: number, size: number) => {
     try {
       setLoading(true)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/urls?page=${page}&page_size=${size}`)
+      const response = await fetch(`/api/urls?page=${page}&page_size=${size}`)
       if (response.ok) {
         const data = await response.json()
         setUrls(data)
@@ -38,7 +39,7 @@ export default function DashboardPage() {
   }, [currentPage, pageSize])
 
   const copyToClipboard = async (shortUrl: string) => {
-    const fullUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${shortUrl}`
+    const fullUrl = `${getBaseUrl()}/${shortUrl}`
     await navigator.clipboard.writeText(fullUrl)
     setCopiedUrl(shortUrl)
     setTimeout(() => setCopiedUrl(null), 2000)
@@ -226,7 +227,7 @@ export default function DashboardPage() {
                             <p className="text-sm text-muted-foreground mb-1">Short URL</p>
                             <div className="flex items-center gap-2 flex-wrap">
                               <code className="bg-muted px-2 py-1 rounded text-xs sm:text-sm font-mono break-all">
-                                {process.env.NEXT_PUBLIC_BASE_URL}/{url.short_url}
+                                {getBaseUrl()}/{url.short_url}
                               </code>
                               <Button
                                 variant="ghost"
@@ -264,7 +265,7 @@ export default function DashboardPage() {
 
                         <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none bg-transparent">
                           <a
-                            href={`${process.env.NEXT_PUBLIC_BASE_URL}/${url.short_url}`}
+                            href={`${getBaseUrl()}/${url.short_url}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

@@ -7,11 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Copy, ExternalLink, QrCode, BarChart3, CheckCircle, Sparkles } from "lucide-react"
 import type { URLCreate, URLResponse } from "@/types/api"
 import { QrCodeDialog } from "./qr-code-dialog"
+import { getBaseUrl } from "@/lib/utils"
 import Link from "next/link"
 
 const expirationOptions = [
@@ -46,7 +47,7 @@ export function UrlShortener() {
         custom_alias: customAlias || undefined,
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/shorten`, {
+      const response = await fetch("/api/shorten", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +75,7 @@ export function UrlShortener() {
 
   const copyToClipboard = async () => {
     if (result) {
-      const shortUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${result.short_url}`
+      const shortUrl = `${getBaseUrl()}/${result.short_url}`
       await navigator.clipboard.writeText(shortUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -135,7 +136,7 @@ export function UrlShortener() {
                 </Label>
                 <Select value={expiresIn} onValueChange={setExpiresIn}>
                   <SelectTrigger className="h-12">
-                    <span>{expirationOptions.find(o => o.value === expiresIn)?.label || "Never"}</span>
+                    <span>{expirationOptions.find((o) => o.value === expiresIn)?.label || "Never"}</span>
                   </SelectTrigger>
                   <SelectContent>
                     {expirationOptions.map((option) => (
@@ -185,7 +186,7 @@ export function UrlShortener() {
               <Label className="text-base font-medium">Your shortened URL</Label>
               <div className="flex items-center gap-3">
                 <Input
-                  value={`${process.env.NEXT_PUBLIC_BASE_URL}/${result.short_url}`}
+                  value={`${getBaseUrl()}/${result.short_url}`}
                   readOnly
                   className="font-mono text-base h-12 bg-background"
                 />
@@ -224,7 +225,7 @@ export function UrlShortener() {
             <div className="flex flex-wrap gap-3 pt-4">
               <Button variant="outline" size="lg" asChild>
                 <a
-                  href={`${process.env.NEXT_PUBLIC_BASE_URL}/${result.short_url}`}
+                  href={`${getBaseUrl()}/${result.short_url}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

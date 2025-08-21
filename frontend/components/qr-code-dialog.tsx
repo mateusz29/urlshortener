@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
+import { getBaseUrl } from "@/lib/utils"
 import Image from "next/image"
 
 interface QrCodeDialogProps {
@@ -26,7 +27,7 @@ export function QrCodeDialog({ shortUrl, children }: QrCodeDialogProps) {
   const downloadQrCode = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/qr/${shortUrl}`)
+      const response = await fetch(`/api/qr/${shortUrl}`)
       if (response.ok) {
         const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
@@ -56,7 +57,7 @@ export function QrCodeDialog({ shortUrl, children }: QrCodeDialogProps) {
         <div className="flex flex-col items-center space-y-4">
           <div className="p-4 bg-white rounded-lg">
             <Image
-              src={`${process.env.NEXT_PUBLIC_API_URL}/qr/${shortUrl}`}
+              src={`/api/qr/${shortUrl}`}
               alt="QR Code"
               width={200}
               height={200}
@@ -65,7 +66,7 @@ export function QrCodeDialog({ shortUrl, children }: QrCodeDialogProps) {
           </div>
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground font-mono">
-              {process.env.NEXT_PUBLIC_BASE_URL}/{shortUrl}
+              {getBaseUrl()}/{shortUrl}
             </p>
             <Button onClick={downloadQrCode} disabled={loading} size="sm">
               <Download className="h-4 w-4 mr-2" />

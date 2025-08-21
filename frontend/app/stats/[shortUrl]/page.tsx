@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,6 +9,7 @@ import { formatDistanceToNow, format } from "date-fns"
 import Link from "next/link"
 import type { URLStats } from "@/types/api"
 import { QrCodeDialog } from "@/components/qr-code-dialog"
+import { getBaseUrl } from "@/lib/utils"
 
 interface StatsPageProps {
   params: {
@@ -27,7 +28,7 @@ export default function StatsPage({ params }: StatsPageProps) {
     const fetchStats = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stats/${shortUrl}`)
+        const response = await fetch(`/api/stats/${shortUrl}`)
         if (response.ok) {
           const data = await response.json()
           setStats(data)
@@ -47,7 +48,7 @@ export default function StatsPage({ params }: StatsPageProps) {
 
   const copyToClipboard = async () => {
     if (stats) {
-      const shortUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${stats.short_url}`
+      const shortUrl = `${getBaseUrl()}/${stats.short_url}`
       await navigator.clipboard.writeText(shortUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -144,7 +145,7 @@ export default function StatsPage({ params }: StatsPageProps) {
                   <label className="text-sm font-medium text-muted-foreground">Short URL</label>
                   <div className="flex items-center gap-3 mt-2">
                     <code className="bg-muted px-3 py-2 rounded-lg font-mono text-lg flex-1">
-                      {process.env.NEXT_PUBLIC_BASE_URL}/{stats.short_url}
+                      {getBaseUrl()}/{stats.short_url}
                     </code>
                     <Button
                       variant="outline"
@@ -214,7 +215,7 @@ export default function StatsPage({ params }: StatsPageProps) {
 
                 <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
                   <a
-                    href={`${process.env.NEXT_PUBLIC_BASE_URL}/${stats.short_url}`}
+                    href={`${getBaseUrl}/${stats.short_url}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
