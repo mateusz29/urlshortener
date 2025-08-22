@@ -215,7 +215,7 @@ export default function StatsPage({ params }: StatsPageProps) {
 
                 <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
                   <a
-                    href={`${getBaseUrl}/${stats.short_url}`}
+                    href={`${getBaseUrl()}/${stats.short_url}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
