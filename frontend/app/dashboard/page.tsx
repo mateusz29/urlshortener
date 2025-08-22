@@ -160,7 +160,7 @@ export default function DashboardPage() {
                     setCurrentPage(1)
                   }}
                 >
-                  <SelectTrigger className="w-16 h-8">
+                  <SelectTrigger className="w-auto h-8 min-w-16">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
