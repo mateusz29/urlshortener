@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { getApiUrl } from "@/lib/utils"
 
 export async function GET(request: NextRequest) {
   try {
@@ -6,7 +7,7 @@ export async function GET(request: NextRequest) {
     const page = searchParams.get("page") || "1"
     const pageSize = searchParams.get("page_size") || "10"
 
-    const response = await fetch(`${process.env.API_URL}/urls?page=${page}&page_size=${pageSize}`)
+    const response = await fetch(`${getApiUrl()}/urls?page=${page}&page_size=${pageSize}`)
 
     if (!response.ok) {
       return NextResponse.json({ detail: "Failed to fetch URLs" }, { status: response.status })

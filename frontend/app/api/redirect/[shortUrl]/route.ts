@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { getApiUrl } from "@/lib/utils"
 
 export async function GET(request: NextRequest, { params }: { params: { shortUrl: string } }) {
   try {
-    const response = await fetch(`${process.env.API_URL}/${params.shortUrl}`, {
+    const response = await fetch(`${getApiUrl()}/${params.shortUrl}`, {
       redirect: "manual",
     })
 

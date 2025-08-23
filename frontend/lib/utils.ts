@@ -12,5 +12,9 @@ export function getBaseUrl(): string {
   }
 
   // Running on the server
-  return process.env.BASE_URL as string
+  return (process.env.BASE_URL as string).replace(/\/+$/, "") // strip all trailing slashes
+}
+
+export function getApiUrl(): string {
+  return (process.env.API_URL as string).replace(/\/+$/, "")
 }
