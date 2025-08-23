@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ExternalLink, Calendar, Activity, ChevronLeft, ChevronRight, QrCode, Copy, CheckCircle } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
@@ -196,20 +195,6 @@ export default function DashboardPage() {
                   <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                       <div className="space-y-3 flex-1 min-w-0 w-full">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                          <Badge variant={url.is_active ? "default" : "secondary"} className="px-3 py-1 w-fit">
-                            {url.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                          {url.expires_at && (
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <Calendar className="h-4 w-4" />
-                              <span className="truncate">
-                                Expires {formatDistanceToNow(new Date(url.expires_at), { addSuffix: true })}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
                         <div className="space-y-3">
                           <div>
                             <p className="text-sm text-muted-foreground mb-1">Original URL</p>

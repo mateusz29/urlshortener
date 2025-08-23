@@ -226,7 +226,7 @@ export function UrlShortener() {
               URL Shortened Successfully!
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             <div className="space-y-3">
               <Label className="text-base font-medium">Your shortened URL</Label>
               <div className="flex items-center gap-3">
@@ -256,18 +256,17 @@ export function UrlShortener() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-sm">
-              <Badge variant="secondary" className="px-3 py-1">
-                {result.is_active ? "Active" : "Inactive"}
-              </Badge>
-              {result.expires_at && (
-                <span className="text-muted-foreground">
-                  Expires: {new Date(result.expires_at).toLocaleDateString()}
-                </span>
-              )}
-            </div>
+            {result.expires_at && (
+              <div className="text-sm text-muted-foreground">
+                Expires: {new Date(result.expires_at).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })} on {new Date(result.expires_at).toLocaleDateString()}
+              </div>
+            )}
 
-            <div className="flex flex-wrap gap-3 pt-4">
+            <div className="flex flex-wrap gap-3">
               <Button variant="outline" size="lg" asChild>
                 <a href={`${getBaseUrl()}/${result.short_url}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
