@@ -5,7 +5,7 @@ from app.routers import qr, urls
 
 app = FastAPI()
 
-origins = ["http://localhost:3000"]
+origins = ["http://localhost:3000", "https://shortlink.lol"]
 
 app.add_middleware(
     CORSMiddleware,

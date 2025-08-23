@@ -35,14 +35,19 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/api" className="text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="https://api.shortlink.lol/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
                   API Documentation
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
 
-         <div className="space-y-4">
+          <div className="space-y-4">
             <h3 className="font-semibold text-sm uppercase tracking-wider">Connect</h3>
             <div className="space-y-3">
               <a
