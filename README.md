@@ -3,6 +3,7 @@
 A modern, full-stack URL shortener service with a responsive web interface and robust API. Built with FastAPI backend and Next.js frontend, featuring QR code generation, click tracking, and expiration management.
 
 🌐 **Live Demo:** [https://shortlink.lol](https://shortlink.lol)
+
 📚 **API Documentation:** [https://api.shortlink.lol](https://api.shortlink.lol)
 
 ## Features
