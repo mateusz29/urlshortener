@@ -120,9 +120,6 @@ export default function StatsPage({ params }: StatsPageProps) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   URL Information
-                  <Badge variant={stats.is_active ? "default" : "secondary"}>
-                    {stats.is_active ? "Active" : "Inactive"}
-                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -241,13 +238,6 @@ export default function StatsPage({ params }: StatsPageProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Current Status</span>
-                  <Badge variant={stats.is_active ? "default" : "secondary"}>
-                    {stats.is_active ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-
                 {stats.expires_at && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
