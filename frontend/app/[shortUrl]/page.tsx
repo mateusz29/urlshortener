@@ -19,14 +19,14 @@ export default function RedirectPage({ params }: RedirectPageProps) {
   useEffect(() => {
     const handleRedirect = async () => {
       try {
-        const reservedRoutes = ["analytics", "dashboard", "stats"]
+        const reservedRoutes = ["analytics", "dashboard", "stats", "api"]
         if (reservedRoutes.includes(shortUrl.toLowerCase())) {
           setError("Page not found")
           setLoading(false)
           return
         }
 
-        const checkResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check/${shortUrl}`)
+        const checkResponse = await fetch(`/api/check/${shortUrl}`)
 
         if (!checkResponse.ok) {
           if (checkResponse.status === 404) {
@@ -40,7 +40,7 @@ export default function RedirectPage({ params }: RedirectPageProps) {
         }
 
         setRedirecting(true)
-        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/${shortUrl}`
+        window.location.href = `/api/redirect/${shortUrl}`
       } catch (err) {
         setError("Unable to process this URL. Please check your connection.")
         setLoading(false)

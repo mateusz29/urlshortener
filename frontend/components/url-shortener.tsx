@@ -7,11 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Copy, ExternalLink, QrCode, BarChart3, CheckCircle, Sparkles } from "lucide-react"
 import type { URLCreate, URLResponse } from "@/types/api"
 import { QrCodeDialog } from "./qr-code-dialog"
+import { getBaseUrl } from "@/lib/utils"
 import Link from "next/link"
 
 const expirationOptions = [
@@ -33,8 +34,53 @@ export function UrlShortener() {
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
+  const validateCustomAlias = (alias: string): string | null => {
+    if (!alias) return null
+
+    if (alias.length < 3) {
+      return "Custom alias must be at least 3 characters"
+    }
+
+    if (alias.length > 20) {
+      return "Custom alias must be no more than 20 characters"
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(alias)) {
+      return "Custom alias can only contain letters, numbers, hyphens, and underscores"
+    }
+
+    const reservedWords = ["api", "dashboard", "analytics", "stats"]
+    if (reservedWords.includes(alias.toLowerCase())) {
+      return "This alias is reserved. Please choose a different one"
+    }
+
+    return null
+  }
+
+  const handleUrlChange = (value: string) => {
+    setOriginalUrl(value)
+    if (error) setError(null)
+  }
+
+  const handleAliasChange = (value: string) => {
+    setCustomAlias(value)
+    if (error) setError(null)
+  }
+
+  const handleExpirationChange = (value: string) => {
+    setExpiresIn(value)
+    if (error) setError(null)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    const aliasError = validateCustomAlias(customAlias)
+    if (aliasError) {
+      setError(aliasError)
+      return
+    }
+
     setLoading(true)
     setError(null)
     setResult(null)
@@ -46,7 +92,7 @@ export function UrlShortener() {
         custom_alias: customAlias || undefined,
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/shorten`, {
+      const response = await fetch("/api/shorten", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +120,7 @@ export function UrlShortener() {
 
   const copyToClipboard = async () => {
     if (result) {
-      const shortUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${result.short_url}`
+      const shortUrl = `${getBaseUrl()}/${result.short_url}`
       await navigator.clipboard.writeText(shortUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -104,7 +150,7 @@ export function UrlShortener() {
                 type="url"
                 placeholder="https://example.com/very-long-url-that-needs-shortening"
                 value={originalUrl}
-                onChange={(e) => setOriginalUrl(e.target.value)}
+                onChange={(e) => handleUrlChange(e.target.value)}
                 required
                 className="h-12 text-base"
               />
@@ -119,7 +165,7 @@ export function UrlShortener() {
                   id="alias"
                   placeholder="my-custom-link"
                   value={customAlias}
-                  onChange={(e) => setCustomAlias(e.target.value)}
+                  onChange={(e) => handleAliasChange(e.target.value)}
                   minLength={3}
                   maxLength={20}
                   className="h-12"
@@ -133,9 +179,9 @@ export function UrlShortener() {
                 <Label htmlFor="expires" className="text-base font-medium">
                   Expires in
                 </Label>
-                <Select value={expiresIn} onValueChange={setExpiresIn}>
+                <Select value={expiresIn} onValueChange={handleExpirationChange}>
                   <SelectTrigger className="h-12">
-                    <span>{expirationOptions.find(o => o.value === expiresIn)?.label || "Never"}</span>
+                    <span>{expirationOptions.find((o) => o.value === expiresIn)?.label || "Never"}</span>
                   </SelectTrigger>
                   <SelectContent>
                     {expirationOptions.map((option) => (
@@ -150,7 +196,7 @@ export function UrlShortener() {
 
             {error && (
               <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive">
-                <p className="font-medium">Error</p>
+                <p className="font-medium">Validation Error</p>
                 <p className="text-sm">{error}</p>
               </div>
             )}
@@ -185,7 +231,7 @@ export function UrlShortener() {
               <Label className="text-base font-medium">Your shortened URL</Label>
               <div className="flex items-center gap-3">
                 <Input
-                  value={`${process.env.NEXT_PUBLIC_BASE_URL}/${result.short_url}`}
+                  value={`${getBaseUrl()}/${result.short_url}`}
                   readOnly
                   className="font-mono text-base h-12 bg-background"
                 />
@@ -223,11 +269,7 @@ export function UrlShortener() {
 
             <div className="flex flex-wrap gap-3 pt-4">
               <Button variant="outline" size="lg" asChild>
-                <a
-                  href={`${process.env.NEXT_PUBLIC_BASE_URL}/${result.short_url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={`${getBaseUrl()}/${result.short_url}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Visit Link
                 </a>
