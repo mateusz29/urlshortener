@@ -1,22 +1,18 @@
-# URL Shortener API
+# URL Shortener
 
-A simple and extensible FastAPI-based URL shortener service with QR code generation.
+A modern, full-stack URL shortener service with a responsive web interface and robust API. Built with FastAPI backend and Next.js frontend, featuring QR code generation, click tracking, and expiration management.
+
+🌐 **Live Demo:** [https://shortlink.lol](https://shortlink.lol)
+📚 **API Documentation:** [https://api.shortlink.lol](https://api.shortlink.lol)
 
 ## Features
 
-- Shorten URLs
-- Set expiration (1h, 6h, 24h, 7d, 30d, 365d, indefinite)
-- Redirect to original URL
-- Track click count
-- View QR codes
-- View statistics for each short URL
-- Expired links automatically deactivated
-
-## Running the App
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
+- **URL Shortening**: Create short, memorable links from long URLs
+- **Flexible Expiration**: Set custom expiration times (1h, 6h, 24h, 7d, 30d, 365d, or indefinite)
+- **Smart Redirects**: Automatic redirection to original URLs with click tracking
+- **QR Code Generation**: Generate QR codes for easy mobile sharing
+- **Analytics**: Track click counts, creation times, and expiration status
+- **Responsive Frontend**: Modern web interface built with Next.js and shadcn/ui
 
 ## API Endpoints
 
@@ -36,50 +32,56 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ## Tech Stack
 
-- FastAPI
-- SQLAlchemy (async)
-- PostgreSQL
-- Pydantic
-- Uvicorn
+### Backend
+- **FastAPI** - Modern, fast web framework for building APIs
+- **SQLAlchemy** (async) - Powerful SQL toolkit and ORM
+- **PostgreSQL** - Robust relational database
+- **Pydantic** - Data validation using Python type annotations
+- **Alembic** - Database migration tool
+- **Uvicorn** - Lightning-fast ASGI server
+
+### Frontend
+- **Next.js** - React framework for production-grade applications
+- **shadcn/ui** - Modern, accessible component library
+- **TypeScript** - Type-safe JavaScript development
+- **Tailwind CSS** - Utility-first CSS framework
+
+### DevOps & Tools
+- **Docker** - Containerized development and deployment
+- **Railway** - Cloud deployment platform
+- **uv** - Fast Python package manager
+- **GitHub Actions** - Continuous integration and deployment
+
+### Code Quality
+- **Ruff** - Fast Python linter and formatter
+- **mypy** - Static type checker for Python
+- **pytest** - Testing framework with coverage reporting
+- **pre-commit** - Git hooks for code quality enforcement
+
+## Deployment
+
+The application is deployed on Railway with automatic deployments from the main branch. The CI/CD pipeline includes:
+
+- **Continuous Integration**: Automated testing, linting, and type checking on every PR
+- **Continuous Deployment**: Automatic deployment to production on merge to main
+- **Database Migrations**: Automatic migration execution during deployment
 
 ## TODO
 
+### Completed ✅
 - [x] Create responsive frontend
 - [x] Add pagination
 - [x] Use environment variables
-- [ ] Add error handling
 - [x] Add tests
 - [x] Use ruff and mypy
 - [x] CI/CD setup
-- [ ] Deploy the app
+- [x] Deploy the app
+
+### In Progress 🚧
+- [ ] Add error handling improvements
 - [ ] Implement rate limiting
+
+### Planned 📋
 - [ ] Add admin key, admin dashboard
 - [ ] Add bulk shortening
 - [ ] Add country/ip tracking
-- [ ] Make stats better
-
-## Development Commands
-
-### Run ruff to check and fix issues
-
-```bash
-uv run ruff check . --fix
-```
-
-### Apply formatting with ruff
-
-```bash
-uv run ruff format .
-```
-
-### Run type checking with mypy
-
-```bash
-uv run mypy .
-```
-
-### Run tests with verbose output
-
-```bash
-uv run pytest --cov=app --cov-report=html --cov-report=term-missing -v
-```
